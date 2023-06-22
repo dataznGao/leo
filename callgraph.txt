@@ -1,0 +1,9 @@
+goroutine 1 [running]:
+runtime/pprof.writeGoroutineStacks({0x104d06be0, 0x140001b0620})
+	/usr/local/go/src/runtime/pprof/pprof.go:694 +0x70
+runtime/pprof.writeGoroutine({0x104d06be0?, 0x140001b0620?}, 0x1401ebb5000?)
+	/usr/local/go/src/runtime/pprof/pprof.go:683 +0x30
+runtime/pprof.(*Profile).WriteTo(0x104bd7f07?, {0x104d06be0?, 0x140001b0620?}, 0x25?)
+	/usr/local/go/src/runtime/pprof/pprof.go:332 +0x158
+main.main()
+	/Users/misery/GolandProjects/leo/main.go:29 +0xec
