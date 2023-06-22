@@ -1,4 +1,4 @@
-package main
+package leo
 
 import (
 	_log "leo/pkg/log"
