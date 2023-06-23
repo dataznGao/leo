@@ -1,4 +1,4 @@
-module leo
+module github.com/dataznGao/leo
 
 go 1.18
 
