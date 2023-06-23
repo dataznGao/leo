@@ -12,7 +12,7 @@ type StackUtil struct {
 
 type SendStackReq struct {
 	Chain *CallChain
-	num   int
+	Num   int
 }
 
 // CallChain 调用链
@@ -25,8 +25,8 @@ func NewCallStack() *CallChain {
 }
 
 func (mu *StackUtil) SendStack(req *SendStackReq, resq *bool) error {
-	add(constant.CallGraph[req.num], req.Chain.Data)
-	*resq = true
+	constant.CallGraph[req.Num] = add(constant.CallGraph[req.Num], req.Chain.Data)
+	*resq = false
 	return nil
 }
 

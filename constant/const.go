@@ -6,6 +6,8 @@ const LogContent = "\"this is a log\""
 
 const EnhanceInputPath = "enhance"
 
+const TmpEnhanceInputPath = "tmp_enhance"
+
 const (
 	CommonPort  string = "9998"
 	InjuredPort string = "9999"

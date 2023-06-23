@@ -22,7 +22,7 @@ func SendStack(num int) {
 	stack := traceToCallStack(traceOutput)
 	req := new(SendStackReq)
 	req.Chain = stack
-	req.num = num
+	req.Num = num
 	//返回值
 	var resp *bool
 

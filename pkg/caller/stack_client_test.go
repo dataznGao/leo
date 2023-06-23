@@ -8,16 +8,16 @@ func TestSendStack(t *testing.T) {
 
 func level() {
 	print(1)
-	SendStack()
+	SendStack(0)
 
 }
 
 func level2() {
-	SendStack()
+	SendStack(0)
 	level()
 }
 
 func level3() {
-	SendStack()
+	SendStack(0)
 	level2()
 }

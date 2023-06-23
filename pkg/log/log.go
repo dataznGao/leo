@@ -101,6 +101,7 @@ func generateDiff(inputPath, testPath, outputPath string) ([]*callgraph.Diff, er
 
 	// 1. 原始调用图生成
 	group.Add(func() {
+		myTestPath := testPath
 		log.Printf("[leo] INFO ===== 原始调用图生成开始 =====")
 		log.Printf("[leo] INFO ===== 动态原始调用图生成开始 =====")
 		// 0. 对代码进行插桩
@@ -108,7 +109,7 @@ func generateDiff(inputPath, testPath, outputPath string) ([]*callgraph.Diff, er
 		realInputPath := inputPath[:_index] + constant.Separator + constant.EnhanceInputPath
 		defer os.RemoveAll(realInputPath)
 		// 测试文件的相对位置改变
-		testPath = util.CompareAndExchange(testPath, realInputPath, inputPath)
+		myTestPath = util.CompareAndExchange(myTestPath, realInputPath, inputPath)
 		// 原始调用图用0标识
 		num := 0
 		err = InsertCollector(inputPath, realInputPath, num)
@@ -116,13 +117,13 @@ func generateDiff(inputPath, testPath, outputPath string) ([]*callgraph.Diff, er
 			log.Printf("[leo] ERROR ===== 动态调用图插桩失败 =====")
 		}
 		inputPath = realInputPath
-		dyRawCallGraph, err := callgraph.DynamicAnal(inputPath, testPath, num)
-		if err != nil {
-			log.Printf("[leo] ERROR ===== 动态调用图生成失败 =====")
-		}
-		println(dyRawCallGraph)
+		//dyRawCallGraph, err := callgraph.DynamicAnal(inputPath, myTestPath, num)
+		//if err != nil {
+		//	log.Printf("[leo] ERROR ===== 动态调用图生成失败 =====")
+		//}
+		//println(dyRawCallGraph)
 		log.Printf("[leo] INFO ===== 静态原始调用图生成开始 =====")
-		rawCallGraph, err = callgraph.Anal(inputPath, testPath)
+		rawCallGraph, err = callgraph.Anal(inputPath, myTestPath)
 		if err != nil {
 			log.Printf("[leo] WARN ===== 原始调用图生成失败 =====")
 		}
@@ -131,11 +132,11 @@ func generateDiff(inputPath, testPath, outputPath string) ([]*callgraph.Diff, er
 
 	// 2. 调用故障注入，故障调用图生成
 	group.Add(func() {
+		myTestPath := testPath
 		tmpPath := removeDir
 		log.Printf("tmpPath: %v", tmpPath)
-		// for日志增强任务，提供点位的list，并且选择点位进行注入
-		// 通过pattern对函数进行迭代
-		env := bingo.CreateMutationEnv(inputPath, tmpPath, testPath)
+		// 进行故障注入
+		env := bingo.CreateMutationEnv(inputPath, tmpPath, myTestPath)
 		env.SyncFault("*.*.*.*")
 		env.SwitchMissDefaultFault("*.*.*.*")
 		env.ExceptionUncaughtFault("*.*.*.*")
@@ -143,15 +144,30 @@ func generateDiff(inputPath, testPath, outputPath string) ([]*callgraph.Diff, er
 		env.ExceptionUnhandledFault("*.*.*.*")
 		f := bingo.MutationPerformer{}
 		log.Printf("[leo] INFO ===== 故障注入启动 =====")
-		tmpTestPath := tmpPath + strings.Replace(testPath, inputPath, "", 1)
-		log.Printf("[leo] INFO tmpTestPath: %v", tmpTestPath)
 		err := f.SetEnv(env).Run(true)
 		if err != nil {
 			log.Fatal("fault inject err !")
 		}
 		log.Printf("[leo] INFO ===== 故障注入完毕 =====")
 		log.Printf("[leo] INFO ===== 故障调用图生成开始 =====")
-		modCallGraph, err = callgraph.Anal(tmpPath, tmpTestPath)
+		log.Printf("[leo] INFO ===== 原始调用图生成开始 =====")
+		log.Printf("[leo] INFO ===== 动态原始调用图生成开始 =====")
+		// 0. 对代码进行插桩
+		_index := strings.LastIndex(tmpPath, constant.Separator)
+		realInputPath := tmpPath[:_index] + constant.Separator + constant.TmpEnhanceInputPath
+		defer os.RemoveAll(realInputPath)
+		// 测试文件的相对位置改变
+		myTestPath = util.CompareAndExchange(myTestPath, realInputPath, inputPath)
+		// 故障调用图用1标识
+		num := 1
+		err = InsertCollector(tmpPath, realInputPath, num)
+		if err != nil {
+			log.Printf("[leo] ERROR ===== 动态调用图插桩失败 =====")
+		}
+		tmpPath = realInputPath
+		dyModCallGraph, err := callgraph.DynamicAnal(tmpPath, myTestPath, num)
+		println(dyModCallGraph)
+		modCallGraph, err = callgraph.Anal(tmpPath, myTestPath)
 		if err != nil {
 			log.Printf("[leo] WARN ===== 故障调用图生成失败 =====")
 		}
