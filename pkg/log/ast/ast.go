@@ -1,9 +1,9 @@
 package _ast
 
 import (
+	"github.com/dataznGao/leo/pkg/callgraph"
+	"github.com/dataznGao/leo/util"
 	"go/ast"
-	"leo/pkg/callgraph"
-	"leo/util"
 	"strings"
 )
 

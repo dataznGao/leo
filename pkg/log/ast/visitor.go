@@ -1,10 +1,10 @@
 package _ast
 
 import (
+	"github.com/dataznGao/leo/constant"
+	"github.com/dataznGao/leo/pkg/callgraph"
 	"go/ast"
 	"go/token"
-	"leo/constant"
-	"leo/pkg/callgraph"
 	"strconv"
 	"strings"
 )

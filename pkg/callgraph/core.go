@@ -4,9 +4,9 @@ package callgraph
 import (
 	"flag"
 	"fmt"
+	"github.com/dataznGao/leo/util"
 	"go/build"
 	"golang.org/x/tools/go/buildutil"
-	"leo/util"
 	"log"
 )
 

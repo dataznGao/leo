@@ -1,10 +1,10 @@
 package _log
 
 import (
+	_ast "github.com/dataznGao/leo/pkg/log/ast"
+	"github.com/dataznGao/leo/util"
 	"go/parser"
 	"go/token"
-	_ast "leo/pkg/log/ast"
-	"leo/util"
 )
 
 // LoadPackage 加载需要添加日志的文件夹，返回文件名对应的文件

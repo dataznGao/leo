@@ -1,7 +1,7 @@
 package leo
 
 import (
-	_log "leo/pkg/log"
+	_log "github.com/dataznGao/leo/pkg/log"
 )
 
 func main() {
