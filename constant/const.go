@@ -4,6 +4,13 @@ const Separator = "/"
 
 const LogContent = "\"this is a log\""
 
+const EnhanceInputPath = "enhance"
+
+const (
+	CommonPort  string = "9998"
+	InjuredPort string = "9999"
+)
+
 type BingoFaultType int
 
 const (
@@ -19,3 +26,6 @@ const (
 	ConditionInversedFault
 	SyncFault
 )
+
+// CallGraph 根据数字区分调用图
+var CallGraph = make(map[int]map[string]map[string]string)

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/dataznGao/bingo"
 	"github.com/dataznGao/leo/constant"
+	"github.com/dataznGao/leo/pkg/caller"
 	"github.com/dataznGao/leo/pkg/callgraph"
 	_ast "github.com/dataznGao/leo/pkg/log/ast"
 	"github.com/dataznGao/leo/util"
@@ -15,16 +16,22 @@ import (
 	"strings"
 )
 
+var threshold = 10
+
 func Log(inputPath, outputPath string) error {
+	// 1. 启动服务端
+	go func() { caller.StartServe() }()
+	// 2. 找到所有的测试文件
 	testPath, err := util.LoadTestPath(inputPath)
 	if err != nil {
 		return err
 	}
 	allDiffs := make([]*callgraph.Diff, 0)
-	therohold := 1
-	if len(testPath) < therohold {
-		therohold = len(testPath)
+
+	if len(testPath) < threshold {
+		threshold = len(testPath)
 	}
+	// 3. 进行diff图生成
 	cnt := 0
 	for _, s := range testPath {
 		if diffs, err := generateDiff(inputPath, s, outputPath); err != nil {
@@ -32,12 +39,13 @@ func Log(inputPath, outputPath string) error {
 		} else {
 			allDiffs = append(allDiffs, diffs...)
 			cnt++
-			if cnt == therohold {
+			if cnt == threshold {
 				break
 			}
 		}
 	}
 	allDiffs = callgraph.DedupDiff(allDiffs)
+	// 4. 根据diff图打日志
 	return DiffLog(inputPath, outputPath, allDiffs)
 }
 
@@ -55,11 +63,11 @@ func DiffLog(inputPath, outputPath string, diffs []*callgraph.Diff) error {
 		}
 		file.Logged = hasLogged
 	}
-	xlsxInfo := make([][]string, 0)
-	xlsxInfo = append(xlsxInfo, []string{"filepath", "caller", "callee"})
-	for _, diff := range diffs {
-		xlsxInfo = append(xlsxInfo, diff.PrintTrace())
-	}
+	//xlsxInfo := make([][]string, 0)
+	//xlsxInfo = append(xlsxInfo, []string{"filepath", "caller", "callee"})
+	//for _, diff := range diffs {
+	//	xlsxInfo = append(xlsxInfo, diff.PrintTrace())
+	//}
 	//util.DataToExcel("/Users/misery/GolandProjects/leo/ConditionInversedFault.xlsx", xlsxInfo)
 	return fillPackage(files, notGoFiles, outputPath, inputPath)
 }
@@ -83,17 +91,37 @@ func generateDiff(inputPath, testPath, outputPath string) ([]*callgraph.Diff, er
 	// leo/scene1.test.init
 	index := strings.LastIndex(inputPath, constant.Separator)
 	removeDir := inputPath[:index] + constant.Separator + "leo_tmp"
+	// 保证临时文件夹会被删除
 	os.RemoveAll(removeDir)
-	//defer os.RemoveAll(removeDir)
+	defer os.RemoveAll(removeDir)
 	group := task.NewGroup(2)
 	rawCallGraph := make(map[string]map[string]string, 0)
 	modCallGraph := make(map[string]map[string]string, 0)
 	var err error
 
-	// 0. 对代码进行插桩
 	// 1. 原始调用图生成
 	group.Add(func() {
 		log.Printf("[leo] INFO ===== 原始调用图生成开始 =====")
+		log.Printf("[leo] INFO ===== 动态原始调用图生成开始 =====")
+		// 0. 对代码进行插桩
+		_index := strings.LastIndex(inputPath, constant.Separator)
+		realInputPath := inputPath[:_index] + constant.Separator + constant.EnhanceInputPath
+		defer os.RemoveAll(realInputPath)
+		// 测试文件的相对位置改变
+		testPath = util.CompareAndExchange(testPath, realInputPath, inputPath)
+		// 原始调用图用0标识
+		num := 0
+		err = InsertCollector(inputPath, realInputPath, num)
+		if err != nil {
+			log.Printf("[leo] ERROR ===== 动态调用图插桩失败 =====")
+		}
+		inputPath = realInputPath
+		dyRawCallGraph, err := callgraph.DynamicAnal(inputPath, testPath, num)
+		if err != nil {
+			log.Printf("[leo] ERROR ===== 动态调用图生成失败 =====")
+		}
+		println(dyRawCallGraph)
+		log.Printf("[leo] INFO ===== 静态原始调用图生成开始 =====")
 		rawCallGraph, err = callgraph.Anal(inputPath, testPath)
 		if err != nil {
 			log.Printf("[leo] WARN ===== 原始调用图生成失败 =====")
@@ -141,6 +169,25 @@ func generateDiff(inputPath, testPath, outputPath string) ([]*callgraph.Diff, er
 	log.Printf("[leo] INFO 共有%v个diff", len(diffs))
 	log.Printf("[leo] INFO 调用图比对完成")
 	return diffs, nil
+}
+
+func InsertCollector(inputPath, outputPath string, num int) error {
+	files, notGoFiles, err := LoadPackage(inputPath)
+	if err != nil {
+		return err
+	}
+	// 插桩, 产生import leo
+	for k, file := range files {
+		if strings.HasSuffix(k, "_test.go") {
+			continue
+		}
+		code := caller.StartCollect(file.File, num)
+		err = util.CreateFile(util.CompareAndExchange(k, outputPath, inputPath), code)
+		if err != nil {
+			return err
+		}
+	}
+	return fillPackage(files, notGoFiles, outputPath, inputPath)
 }
 
 func fillPackage(files map[string]*_ast.File, notGoFiles []string, outputPath, inputPath string) error {

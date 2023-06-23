@@ -1,12 +1,18 @@
 package caller
 
 import (
+	"github.com/dataznGao/leo/constant"
 	"net"
 	"net/http"
 	"net/rpc"
 )
 
 type StackUtil struct {
+}
+
+type SendStackReq struct {
+	Chain *CallChain
+	num   int
 }
 
 // CallChain 调用链
@@ -18,15 +24,16 @@ func NewCallStack() *CallChain {
 	return &CallChain{Data: make(map[string]string)}
 }
 
-var CallGraph = make(map[string]map[string]string)
-
-func (mu *StackUtil) SendStack(req *CallChain, resq *bool) error {
-	append(CallGraph, req.Data)
+func (mu *StackUtil) SendStack(req *SendStackReq, resq *bool) error {
+	add(constant.CallGraph[req.num], req.Chain.Data)
 	*resq = true
 	return nil
 }
 
-func append(mother map[string]map[string]string, son map[string]string) map[string]map[string]string {
+func add(mother map[string]map[string]string, son map[string]string) map[string]map[string]string {
+	if mother == nil {
+		mother = make(map[string]map[string]string)
+	}
 	for k, v := range son {
 		if _, ok := mother[k]; ok {
 			if _, ok := mother[k][v]; !ok {
@@ -53,7 +60,8 @@ func StartServe() {
 	//通过HandleHTTP()把mathUtil提供的服务注册到HTTP协议上，方便调用者利用http的方式进行数据传递
 	rpc.HandleHTTP()
 	//指定端口监听
-	listen, err := net.Listen("tcp", ":8081")
+	address := ":" + string(constant.CommonPort)
+	listen, err := net.Listen("tcp", address)
 	if err != nil {
 		panic(err.Error())
 	}

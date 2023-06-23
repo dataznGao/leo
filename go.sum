@@ -1,5 +1,7 @@
 github.com/dataznGao/bingo v0.0.26 h1:dBeAVV2hNV3lvLIdN17QQG7naCLV+Jb/778Eidene8g=
 github.com/dataznGao/bingo v0.0.26/go.mod h1:MmTrJlh6hMzPOexQd1pfpb0iNr9RJBkaO7t70cVstBU=
+github.com/dataznGao/bingo v0.0.27 h1:Rw7ZmmbbJfwsOxhzAf5ybKOAInrj395K/g2UOMTxarQ=
+github.com/dataznGao/bingo v0.0.27/go.mod h1:MmTrJlh6hMzPOexQd1pfpb0iNr9RJBkaO7t70cVstBU=
 github.com/kr/pretty v0.1.0 h1:L/CwN0zerZDmRFUapSPitk6f+Q3+0za1rQkzVuMiMFI=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=

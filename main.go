@@ -4,7 +4,7 @@ import (
 	_log "github.com/dataznGao/leo/pkg/log"
 )
 
-func main() {
+func Main() {
 
 	err := _log.Log("/Users/misery/GolandProjects/jupiter",
 		"/Users/misery/GolandProjects/jupiter2")

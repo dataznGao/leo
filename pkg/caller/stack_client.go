@@ -1,14 +1,16 @@
 package caller
 
 import (
+	"github.com/dataznGao/leo/constant"
 	"net/rpc"
 	"runtime"
 	"strings"
 )
 
-func SendStack() {
+func SendStack(num int) {
 	//创建连接
-	client, err := rpc.DialHTTP("tcp", "localhost:8081")
+	address := ":" + string(constant.CommonPort)
+	client, err := rpc.DialHTTP("tcp", address)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -17,7 +19,10 @@ func SendStack() {
 	callDepth := runtime.Callers(0, traceOutput)
 	traceOutput = traceOutput[:callDepth]
 
-	req := traceToCallStack(traceOutput)
+	stack := traceToCallStack(traceOutput)
+	req := new(SendStackReq)
+	req.Chain = stack
+	req.num = num
 	//返回值
 	var resp *bool
 

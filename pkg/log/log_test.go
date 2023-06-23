@@ -1,11 +1,17 @@
 package _log
 
 import (
-	"leo/pkg/callgraph"
-	_ast "leo/pkg/log/ast"
-	"leo/util"
+	"github.com/dataznGao/leo/pkg/callgraph"
+	_ast "github.com/dataznGao/leo/pkg/log/ast"
+	"github.com/dataznGao/leo/util"
 	"testing"
 )
+
+func TestInsertCollector(t *testing.T) {
+	inputPath := "/Users/misery/GolandProjects/jupiter/pkg/conf"
+	outputPath := "/Users/misery/GolandProjects/rpc_demo_3"
+	InsertCollector(inputPath, outputPath)
+}
 
 func TestInjureLog(t *testing.T) {
 	inputPath := "/Users/misery/GolandProjects/rpc_demo"

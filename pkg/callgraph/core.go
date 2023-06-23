@@ -4,6 +4,8 @@ package callgraph
 import (
 	"flag"
 	"fmt"
+	"github.com/dataznGao/bingo/core/run-test"
+	"github.com/dataznGao/leo/constant"
 	"github.com/dataznGao/leo/util"
 	"go/build"
 	"golang.org/x/tools/go/buildutil"
@@ -91,4 +93,14 @@ func Anal(inputPath, testPath string) (map[string]map[string]string, error) {
 		res[caller][callee] = vertx.Description
 	}
 	return res, nil
+}
+
+// DynamicAnal 动态调用图分析
+func DynamicAnal(inputPath, testPath string, num int) (map[string]map[string]string, error) {
+	// 因为动态都插桩完毕了，只要测试一遍即可
+	_, err := run.Test(testPath, inputPath)
+	if err != nil {
+		return nil, err
+	}
+	return constant.CallGraph[num], nil
 }

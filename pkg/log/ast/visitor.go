@@ -35,9 +35,9 @@ func setLog(file *ast.File, diff *callgraph.Diff) *bool {
 	hasLog := false
 	// 设置log
 	caller := diff.NodeA.Caller
-	funs := getFuns(file)
+	funs := GetFuns(file)
 	// 获取匿名函数map
-	AnonyFuncMap = getAnonyFuns(funs)
+	AnonyFuncMap = GetAnonyFuns(funs)
 	// flag标识，标识真实函数是否被注入
 	flag := false
 	for _, fun := range funs {
@@ -99,7 +99,7 @@ func setLog(file *ast.File, diff *callgraph.Diff) *bool {
 	return &hasLog
 }
 
-func getAnonyFuns(funs []*ast.FuncDecl) map[string]*ast.FuncLit {
+func GetAnonyFuns(funs []*ast.FuncDecl) map[string]*ast.FuncLit {
 	res := make(map[string]*ast.FuncLit)
 	for _, fun := range funs {
 		head := &ast.FuncLit{Body: fun.Body, Type: &ast.FuncType{}}
@@ -215,7 +215,7 @@ func setLogInFun(fun *ast.FuncDecl, diff *callgraph.Diff) bool {
 	return *vis.hasLog
 }
 
-func getFuns(file *ast.File) []*ast.FuncDecl {
+func GetFuns(file *ast.File) []*ast.FuncDecl {
 	funs := make([]*ast.FuncDecl, 0)
 	for _, decl := range file.Decls {
 		if fun, ok := decl.(*ast.FuncDecl); ok {
