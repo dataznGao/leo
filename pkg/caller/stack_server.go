@@ -5,6 +5,8 @@ import (
 	"net"
 	"net/http"
 	"net/rpc"
+	"strconv"
+	"strings"
 )
 
 type StackUtil struct {
@@ -26,7 +28,7 @@ func NewCallStack() *CallChain {
 
 func (mu *StackUtil) SendStack(req *SendStackReq, resq *bool) error {
 	constant.CallGraph[req.Num] = add(constant.CallGraph[req.Num], req.Chain.Data)
-	*resq = false
+	*resq = true
 	return nil
 }
 
@@ -35,6 +37,9 @@ func add(mother map[string]map[string]string, son map[string]string) map[string]
 		mother = make(map[string]map[string]string)
 	}
 	for k, v := range son {
+		// 进行格式转化
+		k := format(k)
+		v := format(v)
 		if _, ok := mother[k]; ok {
 			if _, ok := mother[k][v]; !ok {
 				mother[k][v] = "common call"
@@ -44,6 +49,33 @@ func add(mother map[string]map[string]string, son map[string]string) map[string]
 		}
 	}
 	return mother
+}
+
+func format(bf string) string {
+	split := strings.Split(bf, ".")
+	// 从 xx.(*xx) -> (*xx.xx)
+	for i, s := range split {
+		if strings.HasPrefix(s, "(*") && strings.HasSuffix(s, ")") {
+			split[i] = s[2:]
+			split[0] = "(*" + split[0]
+		}
+	}
+	res := ""
+	for _, s := range split {
+		if s >= "0" && s <= "9" {
+			continue
+		}
+		if len(s) >= 4 && strings.HasPrefix(s, "func") {
+			num := s[4:]
+			if n, err := strconv.Atoi(num); err == nil {
+				res += "$" + strconv.Itoa(n)
+			}
+			continue
+		}
+		res += "." + s
+	}
+
+	return res[1:]
 }
 
 func StartServe() {

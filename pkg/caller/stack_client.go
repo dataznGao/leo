@@ -15,7 +15,7 @@ func SendStack(num int) {
 		panic(err.Error())
 	}
 	//请求值
-	var traceOutput = make([]uintptr, 100)
+	var traceOutput = make([]uintptr, 10)
 	callDepth := runtime.Callers(0, traceOutput)
 	traceOutput = traceOutput[:callDepth]
 
@@ -40,9 +40,10 @@ func traceToCallStack(trace []uintptr) *CallChain {
 	first := true
 	for i := 2; i < len(trace); i++ {
 		pc := trace[i]
-
 		funcInfo := runtime.FuncForPC(pc)
 		funcName := funcInfo.Name()
+		file, _ := funcInfo.FileLine(pc)
+		println(file)
 		if first {
 			first = false
 		} else {
@@ -53,6 +54,8 @@ func traceToCallStack(trace []uintptr) *CallChain {
 	}
 	return stack
 }
+
+//func
 
 // funcConvert 返回函数包，结构体，函数名, 是否是指针
 func funcConvert(funcInfo string) (string, string, string, bool) {

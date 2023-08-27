@@ -395,16 +395,15 @@ func copyFile(src, dst string) (int64, error) {
 }
 
 func Compare(a, b map[string]map[string]string, inputPath string) []*Diff {
+	packageName := util.GetPackageName(inputPath)
 	diff := make([]*Diff, 0)
 	for caller, m := range a {
 		for callee, descA := range m {
-			callerPath := String2Func(strings.Replace(caller, util.GetPackageName(inputPath), inputPath, 1))
-			calleePath := String2Func(strings.Replace(callee, util.GetPackageName(inputPath), inputPath, 1))
+			callerPath := String2Func(strings.Replace(caller, packageName, inputPath, 1))
+			calleePath := String2Func(strings.Replace(callee, packageName, inputPath, 1))
 			if calleeMapB, ok := b[caller]; ok {
 				if descB, ok := calleeMapB[callee]; ok {
-					if descB == descA {
-						continue
-					} else {
+					if descB != descA {
 						// case1: 描述不同
 						diff = append(diff, &Diff{
 							NodeA: &Node{
@@ -451,9 +450,7 @@ func Compare(a, b map[string]map[string]string, inputPath string) []*Diff {
 			calleePath := String2Func(strings.Replace(callee, util.GetPackageName(inputPath), inputPath, 1))
 			if calleeMapA, ok := a[caller]; ok {
 				if descA, ok := calleeMapA[callee]; ok {
-					if descB == descA {
-						continue
-					} else {
+					if descB != descA {
 						// case1: 描述不同
 						diff = append(diff, &Diff{
 							NodeA: &Node{

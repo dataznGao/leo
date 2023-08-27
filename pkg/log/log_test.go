@@ -10,7 +10,11 @@ import (
 func TestInsertCollector(t *testing.T) {
 	inputPath := "/Users/misery/GolandProjects/jupiter/pkg/conf"
 	outputPath := "/Users/misery/GolandProjects/rpc_demo_3"
-	InsertCollector(inputPath, outputPath)
+	InsertCollector(inputPath, outputPath, 1)
+}
+
+func TestFixCallGraph(t *testing.T) {
+
 }
 
 func TestInjureLog(t *testing.T) {

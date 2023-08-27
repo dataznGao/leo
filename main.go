@@ -1,10 +1,10 @@
-package leo
+package main
 
 import (
 	_log "github.com/dataznGao/leo/pkg/log"
 )
 
-func Main() {
+func main() {
 
 	err := _log.Log("/Users/misery/GolandProjects/jupiter",
 		"/Users/misery/GolandProjects/jupiter2")

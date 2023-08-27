@@ -2,14 +2,14 @@ package caller
 
 import "testing"
 
+//go:noinline
+
 func TestSendStack(t *testing.T) {
-	level3()
+	level()
 }
 
 func level() {
-	print(1)
 	SendStack(0)
-
 }
 
 func level2() {

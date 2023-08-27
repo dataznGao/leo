@@ -1,4 +1,4 @@
-package leo
+package main
 
 import "github.com/dataznGao/leo/pkg/caller"
 
